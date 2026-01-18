@@ -1,0 +1,46 @@
+# ─── IDE & editor ─────────────────────────
+/.shelf/
+/workspace.xml
+/.vscode/
+/.idea/
+/*.iml
+
+# ─── OS files ──────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Node (frontend & backend) ─────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+/frontend/dist/
+/backend/dist/   # if you ever compile/transpile
+
+# ─── Go (healthcheck) ──────────────────────
+/healthcheck/healthcheck       # compiled binary
+/go.sum
+/go.mod                       # only if you check modules elsewhere
+
+# ─── Environment ───────────────────────────
+.env
+*.env
+
+# ─── Logs & temp ───────────────────────────
+logs/
+*.log
+/tmp/
+
+# ─── Docker / compose mounts ───────────────
+/certs/                        # if you don’t want to check your self-signed privkey.pem into Git
+/html/
+/vhost/
+/secrets/
+/acme.sh/
+
+
+# ─── Database ──────────────────────────────
+/fd_pgdata/                    # local Postgres volume folder
+
+# ─── Misc ─────────────────────────────────
+coverage/
+*.tgz                          # packaged npm modules

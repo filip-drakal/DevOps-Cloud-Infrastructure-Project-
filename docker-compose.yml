@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  fd_duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: fd_duckdns
+    networks: [ fd_public ]
+    restart: unless-stopped
+    environment:
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - TZ=Europe/Brussels
+
+  fd_backend:
+    build:
+      context: ./backend
+      target: production
+    container_name: fd_backend
+    depends_on: [ fd_db ]
+    networks: [ fd_public, fd_internal ]
+    environment:
+      - VIRTUAL_HOST=api.${BUDGET_DOMAIN}
+      - LETSENCRYPT_HOST=api.${BUDGET_DOMAIN}
+      - LETSENCRYPT_EMAIL=${LE_EMAIL}
+      - DB_HOST=fd_db
+      - DB_NAME=mybudget
+      - DB_USER=postgres
+      - DB_PASS=${POSTGRES_PASSWORD}
+    ports:
+      - "4000:4000"
+
+  fd_frontend:
+    build:
+      context: ./frontend
+      target: production
+    container_name: fd_frontend
+    depends_on:
+      - fd_backend
+    networks: [ fd_public, fd_internal ]
+    environment:
+      - VIRTUAL_HOST=${BUDGET_DOMAIN}
+      - LETSENCRYPT_HOST=${BUDGET_DOMAIN}
+      - LETSENCRYPT_EMAIL=${LE_EMAIL}
+
+
+  fd_db:
+    image: postgres:15
+    container_name: fd_db
+    networks: [ fd_internal ]
+    environment:
+      - POSTGRES_DB=mybudget
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - fd_pgdata:/var/lib/postgresql/data
+
+  fd_nginx_proxy:
+    image: jwilder/nginx-proxy:latest
+    container_name: fd_nginx_proxy
+    networks: [ fd_public ]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./vhost:/etc/nginx/vhost.d:ro
+      - ./html:/usr/share/nginx/html:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+
+  fd_letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion:latest
+    container_name: fd_letsencrypt
+    depends_on: [ fd_nginx_proxy ]
+    networks: [ fd_public ]
+    volumes:
+      - ./certs:/etc/nginx/certs
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - acme_data:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - NGINX_PROXY_CONTAINER=fd_nginx_proxy
+      - DHPARAM_BITS=2048
+      - LETSENCRYPT_HOST=${BUDGET_DOMAIN}
+      - LETSENCRYPT_EMAIL=${LE_EMAIL}
+networks:
+  fd_public:
+  fd_internal:
+
+volumes:
+  fd_pgdata:
+  acme_data:

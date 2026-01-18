@@ -1,0 +1,20 @@
+{
+  "name": "mybudgetplanner-backend",
+  "version": "1.0.0",
+  "description": "Express backend for MyBudget Finance Tracker",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.8.0",
+    "sequelize": "^6.32.0"
+  }
+}
