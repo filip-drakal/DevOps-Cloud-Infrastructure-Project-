@@ -1,14 +1,32 @@
 **FD Budget Planner Infrastructure Documentation**
-1. Objective
-   The goal of this project is to deploy a multi-container application using Docker Compose,
-   featuring:
-   • A PostgreSQL database in its own container
-   • A backend service (Node.js) using a multi-stage build
-   • A frontend (React) using a multi-stage build
-   • A reverse proxy (nginx-proxy) with automatic TLS via Let’s Encrypt
-   • DNS automation via DuckDNS
-   • Host-based routing to backend and frontend
-   All container, network, and volume names include the prefix “fd” (my initials) to avoid collisions.
+
+Overview
+This project demonstrates the deployment of a production-like, multi-container web application using Docker Compose.
+It focuses on infrastructure, networking, TLS automation, and operational reliability, rather than application logic.
+The stack consists of a frontend, backend API, PostgreSQL database,and a reverse proxy with automated HTTPS and DNS updates.
+
+1. Architecture
+Components
+•	React frontend (multi-stage Docker build)
+•	Node.js backend API (multi-stage Docker build)
+•	PostgreSQL database (dedicated container)
+•	Reverse proxy (nginx-proxy)
+•	Let’s Encrypt companion for automatic TLS
+•	DuckDNS for dynamic DNS updates
+Key characteristics
+•	Host-based routing for frontend and API
+•	Automatic certificate issuance and renewal
+•	Isolated Docker networks for public and internal traffic
+•	Custom naming conventions to avoid resource collisions
+
+What I Built
+•	Deployed a multi-container application stack using Docker Compose with explicit network separation.
+•	Configured nginx-proxy + Let’s Encrypt companion for zero-touch HTTPS certificates.
+•	Implemented host-based routing to cleanly separate frontend and backend traffic.
+•	Automated DNS record updates using DuckDNS to support dynamic cloud IP addresses.
+•	Used multi-stage Docker builds to reduce runtime image size and isolate build dependencies.
+•	Centralized configuration via environment variables (.env) for portability.
+
 2. Prerequisites
    • Basic Linux shell proficiency
    • Azure CLI (if deploying on Azure)
@@ -25,7 +43,7 @@
 4. Setup and Deployment and Environment Variables
    Set up the .env file and fill in your values:
 # Database
-POSTGRES_PASSWORD=postgres
+POSTGRES_PASSWORD=<yourpassword>
 # DuckDNS
 DUCKDNS_SUBDOMAIN=yoursubdomain
 DUCKDNS_TOKEN=<your-duckdns-token>
@@ -44,7 +62,7 @@ sudo apt update && sudo apt install -y ca-certificates curl gnupg lsb-release \
 && sudo systemctl enable --now docker \
 && sudo ufw allow 22/tcp && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp && sudo ufw --
 force enable \
-&& git clone https://gitlab.com/f.drakalski/infrastructureproject.git infrastructure \
+&& git clone https://github.com/filip-drakal/DevOps-Cloud-Infrastructure-Project-.git infrastructure \
 && cd infrastructure \
 && docker compose up -d
 
@@ -58,7 +76,7 @@ firewalld \
 && sudo firewall-cmd --permanent --add-port=80/tcp \
 && sudo firewall-cmd --permanent --add-port=443/tcp \
 && sudo firewall-cmd --reload \
-&& git clone https://gitlab.com/f.drakalski/infrastructureproject.git infrastructure \
+&& git clone https://github.com/filip-drakal/DevOps-Cloud-Infrastructure-Project-.git infrastructure \
 && cd infrastructure \
 && docker compose up -d
 What these commands do is install the docker services, enable it, open the ports (22,80,443)
@@ -74,9 +92,17 @@ things only the docker-compose up -d is adequate.
    • jwilder/nginx-proxy + letsencrypt-companion for automated TLS
    • DuckDNS for dynamic DNS to avoid manual A-record updates
    • Host-based routing (via VIRTUAL_HOST) to cleanly split frontend/backend
+
 7. Testing and Verification
-1. On VM: curl -H "Host: fd-budgetplanner.duckdns.org" http://127.0.0.1 -I
-2. For external machine: curl -I https://<yourdomain>.duckdns.org
-3. Backend API: curl -I https://api.<yourdomain>.duckdns.org/api/transactions
+On VM: curl -H "Host: fd-budgetplanner.duckdns.org" http://127.0.0.1 -I
+For external machine: curl -I https://<yourdomain>.duckdns.org
+Backend API: curl -I https://api.<yourdomain>.duckdns.org/api/transactions
+
 8. Cleanup:
    docker compose down --volumes --remove-orphans
+
+9. Improvments
+   •	Add container health checks and restart policies
+   •	Introduce centralized logging or metrics
+   •	Replace VM-based deployment with managed container services
+   •	Infrastructure as Code (Terraform / Bicep)
