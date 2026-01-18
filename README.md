@@ -43,7 +43,7 @@ What I Built
 4. Setup and Deployment and Environment Variables
    Set up the .env file and fill in your values:
 # Database
-POSTGRES_PASSWORD=<yourpassword>
+POSTGRES_PASSWORD=yourpassword
 # DuckDNS
 DUCKDNS_SUBDOMAIN=yoursubdomain
 DUCKDNS_TOKEN=<your-duckdns-token>
@@ -87,21 +87,15 @@ things only the docker-compose up -d is adequate.
    • Local: Add to /etc/hosts: 127.0.0.1 fd-budgetplanner.duckdns.org api.fdbudgetplanner.duckdns.org
    • Public Cloud: Use DuckDNS in Docker Compose to automate A-record updates
    • TLS certificates are obtained automatically via Let’s Encrypt companion
-6. Design Choices
-   • Multi-stage builds to reduce image size and separate build/runtime
-   • jwilder/nginx-proxy + letsencrypt-companion for automated TLS
-   • DuckDNS for dynamic DNS to avoid manual A-record updates
-   • Host-based routing (via VIRTUAL_HOST) to cleanly split frontend/backend
 
-7. Testing and Verification
+6. Testing and Verification
 On VM: curl -H "Host: fd-budgetplanner.duckdns.org" http://127.0.0.1 -I
 For external machine: curl -I https://<yourdomain>.duckdns.org
 Backend API: curl -I https://api.<yourdomain>.duckdns.org/api/transactions
 
-8. Cleanup:
+7. Cleanup:
    docker compose down --volumes --remove-orphans
-
-9. Improvments
+8. Improvements
    •	Add container health checks and restart policies
    •	Introduce centralized logging or metrics
    •	Replace VM-based deployment with managed container services
